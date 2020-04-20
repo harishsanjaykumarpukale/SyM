@@ -6,6 +6,8 @@ import 'package:local_auth/local_auth.dart';
 class Pincode extends StatelessWidget {
   final TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
 
+  final _formKey = GlobalKey<FormState>();
+
   // 2. created object of localauthentication class
   final LocalAuthentication _localAuthentication = LocalAuthentication();
 
@@ -63,6 +65,7 @@ class Pincode extends StatelessWidget {
                   primaryColorDark: Colors.blue,
                 ),
                 child: new TextFormField(
+                  key: _formKey,
                   obscureText: false,
                   decoration: new InputDecoration(
                     labelText: "Pincode",
@@ -74,7 +77,10 @@ class Pincode extends StatelessWidget {
                     if (val.length == 0) {
                       return "Pincode cannot be empty";
                     } else {
-                      return null;
+                      if (val.contains('1234')) {
+                        return "Success";
+                      } else
+                        return null;
                     }
                   },
                   keyboardType: TextInputType.number,
@@ -83,7 +89,7 @@ class Pincode extends StatelessWidget {
                   ),
                 )),
             new Padding(
-              padding: new EdgeInsets.all(60.0),
+              padding: new EdgeInsets.all(40.0),
             ),
             RaisedButton(
               shape: RoundedRectangleBorder(
@@ -91,7 +97,8 @@ class Pincode extends StatelessWidget {
               padding: EdgeInsets.all(15.0),
               color: Color(0xff2B276D),
               onPressed: () {
-                Navigator.of(context).pushNamed("/home");
+                if (_formKey.currentState.validate())
+                  Navigator.of(context).pushNamed("/home");
                 // Next screen
               },
               child: Text("Submit",
@@ -106,15 +113,29 @@ class Pincode extends StatelessWidget {
             ),
             new ListTile(
               title: new Text(
-                "OR\nPress your finger!",
+                "OR",
                 textAlign: TextAlign.center,
               ),
-              onTap: () async {
-                if (await _authenticateMe()) {
-                  Navigator.of(context).pushNamed("/home");
-                  // Next screen
-                }
+              enabled: false,
+            ),
+            Padding(
+              padding: new EdgeInsets.all(8.0),
+            ),
+            RaisedButton(
+              shape: RoundedRectangleBorder(
+                  borderRadius: new BorderRadius.circular(30.0)),
+              padding: EdgeInsets.all(15.0),
+              color: Color(0xff2B276D),
+              onPressed: () {
+                Navigator.of(context).pushNamed("/home");
+                // Next screen
               },
+              child: Text("Choose to press your finger",
+                  textAlign: TextAlign.center,
+                  style: style.copyWith(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold)),
             ),
             new Padding(
               padding: new EdgeInsets.all(8.0),
