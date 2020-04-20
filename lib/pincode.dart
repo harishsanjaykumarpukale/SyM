@@ -51,7 +51,7 @@ class Pincode extends StatelessWidget {
           children: <Widget>[
             Padding(padding: EdgeInsets.all(20.0)),
             Text(
-              'Enter your pincode',
+              'Enter your PIN',
               style: TextStyle(fontSize: 20),
             ),
             Padding(padding: EdgeInsets.all(8.0)),
@@ -68,7 +68,7 @@ class Pincode extends StatelessWidget {
                   key: _formKey,
                   obscureText: false,
                   decoration: new InputDecoration(
-                    labelText: "Pincode",
+                    labelText: "PIN",
                     border: new OutlineInputBorder(
                       borderSide: new BorderSide(color: Colors.blue),
                     ),
