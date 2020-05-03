@@ -126,8 +126,11 @@ class Pincode extends StatelessWidget {
                   borderRadius: new BorderRadius.circular(30.0)),
               padding: EdgeInsets.all(15.0),
               color: Color(0xff2B276D),
-              onPressed: () {
-                Navigator.of(context).pushNamed("/home");
+              onPressed: () async {
+                bool returnValue = await _authenticateMe();
+                if (returnValue) {
+                  Navigator.of(context).pushNamed("/home");
+                }
                 // Next screen
               },
               child: Text("Choose to press your finger",
