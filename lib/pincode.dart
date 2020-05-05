@@ -1,35 +1,88 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/painting.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:flutter/cupertino.dart';
+import 'dart:async';
 
-class Pincode extends StatelessWidget {
+import 'MyHome.dart';
+
+class Pincode extends StatefulWidget {
+  @override
+  _PincodeState createState() => _PincodeState();
+}
+
+class _PincodeState extends State<Pincode> {
   final TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
 
   final _formKey = GlobalKey<FormState>();
 
-  // 2. created object of localauthentication class
   final LocalAuthentication _localAuthentication = LocalAuthentication();
 
-  Future<bool> _authenticateMe() async {
-    // 8. this method opens a dialog for fingerprint authentication.
-    //    we do not need to create a dialog nut it popsup from device natively.
-    bool _authenticated = false;
+  Future<bool> _isBiometricAvailable() async {
+    bool isAvailable = false;
     try {
-      _authenticated = await _localAuthentication.authenticateWithBiometrics(
-        localizedReason: "Authenticate for Testing", // message for dialog
-        useErrorDialogs: true, // show error in dialog
-        stickyAuth: true, // native process
-      );
-    } catch (e) {
+      isAvailable = await _localAuthentication.canCheckBiometrics;
+    } on PlatformException catch (e) {
       print(e);
     }
 
-    return _authenticated;
-//    if (!mounted) return;
-//    setState(() {
-////      _authorizedOrNot = authenticated ? "Authorized" : "Not Authorized";
-//    });
+    if (!mounted) return isAvailable;
+
+    isAvailable
+        ? print('Biometric is available!')
+        : print('Biometric is unavailable.');
+
+    return isAvailable;
+  }
+
+  Future<void> _getListOfBiometricTypes() async {
+    List<BiometricType> listOfBiometrics;
+    try {
+      listOfBiometrics = await _localAuthentication.getAvailableBiometrics();
+    } on PlatformException catch (e) {
+      print(e);
+    }
+
+    if (!mounted) return;
+
+    print(listOfBiometrics);
+  }
+
+  Future<void> _authenticateUser() async {
+    bool isAuthenticated = false;
+    try {
+      isAuthenticated = await _localAuthentication.authenticateWithBiometrics(
+        localizedReason:
+            "Please authenticate to view your transaction overview",
+        useErrorDialogs: true,
+        stickyAuth: true,
+      );
+    } on PlatformException catch (e) {
+      print(e);
+    }
+
+    if (!mounted) return;
+
+    isAuthenticated
+        ? print('User is authenticated!')
+        : print('User is not authenticated.');
+
+    if (isAuthenticated) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => MyHome(),
+        ),
+      );
+    }
+  }
+
+  bool validatePin(String val) {
+    if (val.contains("1234"))
+      return true;
+    else
+      return false;
   }
 
   @override
@@ -97,9 +150,11 @@ class Pincode extends StatelessWidget {
               padding: EdgeInsets.all(15.0),
               color: Color(0xff2B276D),
               onPressed: () {
-                if (_formKey.currentState.validate())
-                  Navigator.of(context).pushNamed("/home");
-                // Next screen
+                print(_formKey.currentState.toString());
+                Navigator.of(context).pushNamed("/home");
+//                if (validatePin(_formKey.currentState.toString())) {
+//                  Navigator.pushNamed(context, "/home");
+//                }
               },
               child: Text("Submit",
                   textAlign: TextAlign.center,
@@ -127,9 +182,9 @@ class Pincode extends StatelessWidget {
               padding: EdgeInsets.all(15.0),
               color: Color(0xff2B276D),
               onPressed: () async {
-                bool returnValue = await _authenticateMe();
-                if (returnValue) {
-                  Navigator.of(context).pushNamed("/home");
+                if (await _isBiometricAvailable()) {
+                  await _getListOfBiometricTypes();
+                  await _authenticateUser();
                 }
                 // Next screen
               },
